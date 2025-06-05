@@ -1,19 +1,17 @@
-// Import required modules
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const QRCode = require('qrcode'); // Better QR display
 
-// Create a WhatsApp client with session persistence
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const QRCode = require('qrcode'); 
+
 const client = new Client({
-    authStrategy: new LocalAuth(), // Stores session in .wwebjs_auth
+    authStrategy: new LocalAuth(),
     puppeteer: {
-        headless: true, // Set to false if you want to see the browser
+        headless: true, 
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
     },
 });
 
-const DEST_GROUP_NAME = "Bot?"; // Name of your target group
+const DEST_GROUP_NAME = "Bot?";
 
-// Show QR code in terminal
 client.on('qr', (qr) => {
     console.clear();
     console.log('📱 Scan this QR Code to log in:\n');
@@ -23,17 +21,14 @@ client.on('qr', (qr) => {
     });
 });
 
-// Client is ready
 client.on('ready', () => {
     console.log('✅ Bot is ready!');
 });
 
-// Handle incoming messages
 client.on('message', async (msg) => {
-    // Ignore group messages
+
     if (msg.from.includes('@g.us')) return;
 
-    // Find the destination group
     const chats = await client.getChats();
     const group = chats.find(chat => chat.isGroup && chat.name === DEST_GROUP_NAME);
 
@@ -43,7 +38,7 @@ client.on('message', async (msg) => {
     }
 
     try {
-        // Forward media or text
+
         if (msg.hasMedia) {
             const media = await msg.downloadMedia();
             await client.sendMessage(group.id._serialized, media, {
